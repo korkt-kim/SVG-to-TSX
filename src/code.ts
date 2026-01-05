@@ -1,37 +1,51 @@
-// This plugin will open a window to prompt the user to enter a number, and
-// it will then create that many rectangles on the screen.
+import { debounce } from "./utils/debounce";
 
-// This file holds the main code for plugins. Code in this file has access to
-// the *figma document* via the figma global object.
-// You can access browser APIs in the <script> tag inside "ui.html" which has a
-// full browser environment (See https://www.figma.com/plugin-docs/how-plugins-run).
+// Utility functions start here
+function ab2str(buf: Uint8Array) {
+  return String.fromCharCode.apply(
+    null,
+    new Uint16Array(buf) as unknown as number[],
+  );
+}
 
-// This shows the HTML page in "ui.html".
-figma.showUI(__html__);
+function getSelectedComponents() {
+  return figma.currentPage.selection.filter(
+    (item) => item.type === "COMPONENT",
+  );
+}
 
-// Calls to "parent.postMessage" from within the HTML page will trigger this
-// callback. The callback will be passed the "pluginMessage" property of the
-// posted message.
-figma.ui.onmessage =  (msg: {type: string, count: number}) => {
-  // One way of distinguishing between different types of messages sent from
-  // your HTML page is to use an object with a "type" property like this.
-  if (msg.type === 'create-shapes') {
-    // This plugin creates rectangles on the screen.
-    const numberOfRectangles = msg.count;
+figma.showUI(__html__, { visible: true, width: 500, height: 500 });
 
-    const nodes: SceneNode[] = [];
-    for (let i = 0; i < numberOfRectangles; i++) {
-      const rect = figma.createRectangle();
-      rect.x = i * 150;
-      rect.fills = [{ type: 'SOLID', color: { r: 1, g: 0.5, b: 0 } }];
-      figma.currentPage.appendChild(rect);
-      nodes.push(rect);
-    }
-    figma.currentPage.selection = nodes;
-    figma.viewport.scrollAndZoomIntoView(nodes);
-  }
+Promise.all(
+  getSelectedComponents().map((selected) =>
+    selected.exportAsync({ format: "SVG" }),
+  ),
+).then((svgCodes) => {
+  figma.ui.postMessage({
+    type: "networkRequest",
+    data: svgCodes.map((svgCode, index) => ({
+      svg: ab2str(svgCode),
+      name: getSelectedComponents()[index].name,
+    })),
+  });
+});
 
-  // Make sure to close the plugin when you're done. Otherwise the plugin will
-  // keep running, which shows the cancel button at the bottom of the screen.
-  figma.closePlugin();
-};
+figma.on(
+  "selectionchange",
+  debounce(() => {
+    Promise.all(
+      getSelectedComponents().map((selected) =>
+        selected.exportAsync({ format: "SVG" }),
+      ),
+    ).then((svgCodes) => {
+      figma.ui.postMessage({
+        type: "networkRequest",
+        data: svgCodes.map((svgCode, index) => ({
+          svg: ab2str(svgCode),
+          originalName: getSelectedComponents()[index].name,
+          name: getSelectedComponents()[index].name,
+        })),
+      });
+    });
+  }),
+);
