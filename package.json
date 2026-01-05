@@ -4,22 +4,27 @@
   "description": "Your Figma Plugin",
   "main": "code.js",
   "scripts": {
-    "build": "tsc -p tsconfig.json",
-    "lint": "eslint --ext .ts,.tsx --ignore-pattern node_modules .",
-    "lint:fix": "eslint --ext .ts,.tsx --ignore-pattern node_modules --fix .",
-    "watch": "npm run build -- --watch"
+    "build": "npx webpack --mode=production",
+    "dev": "npx webpack --mode=development --watch"
   },
   "author": "",
   "license": "",
   "devDependencies": {
     "@figma/eslint-plugin-figma-plugins": "*",
     "@figma/plugin-typings": "*",
+    "@types/node": "^25.0.3",
+    "@types/react": "^19.2.7",
+    "@types/react-dom": "^19.2.3",
     "@typescript-eslint/eslint-plugin": "^6.12.0",
     "@typescript-eslint/parser": "^6.12.0",
     "eslint": "^8.54.0",
+    "html-inline-script-webpack-plugin": "^3.2.1",
     "typescript": "^5.3.2"
   },
   "eslintConfig": {
+    "env": {
+      "node": true
+    },
     "extends": [
       "eslint:recommended",
       "plugin:@typescript-eslint/recommended",
@@ -40,5 +45,17 @@
         }
       ]
     }
+  },
+  "dependencies": {
+    "css-loader": "^7.1.2",
+    "html-webpack-plugin": "^5.6.5",
+    "parse-github-url": "^1.0.3",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3",
+    "style-loader": "^4.0.0",
+    "ts-loader": "^9.5.4",
+    "url-loader": "^4.1.1",
+    "webpack": "^5.104.1",
+    "webpack-cli": "^6.0.1"
   }
 }
