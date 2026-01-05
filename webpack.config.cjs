@@ -1,0 +1,47 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
+
+const HtmlInlineScriptPlugin = require('html-inline-script-webpack-plugin')
+const HtmlWebpackPlugin = require('html-webpack-plugin')
+const path = require('path')
+
+module.exports = (env, argv) => ({
+  mode: argv.mode === 'production' ? 'production' : 'development',
+
+  // Disable cache in development to ensure fresh builds
+  cache: false,
+
+  devtool: argv.mode === 'production' ? false : 'inline-source-map',
+
+  entry: {
+    ui: './src/ui.tsx', 
+    code: './src/code.ts', 
+  },
+
+  module: {
+    rules: [
+      { test: /\.tsx?$/, use: 'ts-loader', exclude: /node_modules/ },
+      { test: /\.css$/, use: [{ loader: 'style-loader' }, { loader: 'css-loader' }] },
+      { test: /\.(png|jpg|gif|webp|svg)$/, use: [{ loader: 'url-loader' }] },
+    ],
+  },
+
+  resolve: { extensions: ['.tsx', '.ts', '.jsx', '.js'] },
+
+  output: {
+    filename: '[name].js',
+    path: path.resolve(__dirname, 'dist'),
+  },
+
+  plugins: [
+    new HtmlWebpackPlugin({
+      template: './src/ui.html',
+      filename: 'ui.html',
+      chunks: ['ui'],
+      cache: false,
+      inject: 'body',
+    }),
+    new HtmlInlineScriptPlugin({
+      htmlMatchPattern: [/ui.html$/],
+    }),
+  ],
+})
