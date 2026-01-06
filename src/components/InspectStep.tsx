@@ -35,6 +35,9 @@ export const InspectStep = () => {
       </CommonLayout.Content>
       <CommonLayout.Bottom>
         <button
+          className="button button--primary"
+          style={{ flex: 1 }}
+          disabled={!isSvgComponentSelected}
           onClick={async () => {
             const tsxCodes = await Promise.all(
               globalContext?.svgCodes.map((svg) => {
@@ -62,5 +65,5 @@ export const InspectStep = () => {
 };
 
 const SVGItem = ({ name }: { name: string }) => {
-  return <div>{name}</div>;
+  return <p>{name}</p>;
 };
