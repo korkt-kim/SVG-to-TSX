@@ -7,6 +7,7 @@ import {
   useState,
 } from "react";
 import { SVGCode, TSXCode } from "../type";
+import { POST_MESSAGE_TYPE } from "../consts";
 
 type STEPS = "inspect" | "export";
 
@@ -33,18 +34,23 @@ export const GlobalProvider = ({
 
   useLayoutEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const messageHandler = (event: MessageEvent<any>) => {
-      const svgCodes = event.data.pluginMessage.data as SVGCode[];
-      console.log(svgCodes);
-      setSvgCodes(svgCodes);
+    const svgCodesHandler = (event: MessageEvent<{pluginMessage: {type: string, data: any}}>) => {
+
+      if(event.data.pluginMessage.type===POST_MESSAGE_TYPE.LOAD_SVG){
+        const svgCodes = event.data.pluginMessage.data as SVGCode[];
+        setSvgCodes(svgCodes);
+      }
     };
 
-    window.addEventListener("message", messageHandler);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    window.addEventListener('message', svgCodesHandler);
+
+    
 
     return () => {
-      window.removeEventListener("message", messageHandler);
+      window.removeEventListener('message', svgCodesHandler);
     };
-  });
+  },[]);
 
   return (
     <GlobalContext.Provider
