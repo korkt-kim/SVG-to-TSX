@@ -37,10 +37,7 @@ export const ErrorProvider = ({ children }: { children: ReactNode }) => {
 export const Alert = ({ message }: { message: string }) => {
   return (
     <div className="alert">
-      <div
-        className="icon--warning"
-        style={{ width: "26px", height: "24px" }}
-      />
+      <div className="icon icon--warning" />
       <p className="error-message">{message}</p>
     </div>
   );
