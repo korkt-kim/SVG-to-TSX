@@ -12,26 +12,22 @@ export class GitHub implements CodeHosting {
     accessToken,
     url,
     destDirectory,
+    featureBranch,
     commitMessage,
     svgs,
-  }: {
-    accessToken: string;
-    url: string;
-    destDirectory: string;
-    commitMessage: string;
-    svgs: { name: string; code: string }[];
-  }) {
+  }: Parameters<CodeHosting['createPR']>[0]) {
+    
+    console.log("wqer")
+    const parsedGithubUrl = this.getParsedGithubUrl(url);
+    console.log(parsedGithubUrl)
     this.octokit = new Octokit({
       auth: accessToken,
     });
 
-    const parsedGithubUrl = this.getParsedGithubUrl(url);
-
     const owner = parsedGithubUrl.owner;
     const repoName = parsedGithubUrl.name;
-    const branch = parsedGithubUrl.branch;
 
-    if (!owner || !repoName || !branch) {
+    if (!owner || !repoName ) {
       console.error("Invalid URL. Failed to create PR");
       return;
     }
@@ -43,7 +39,7 @@ export class GitHub implements CodeHosting {
 
     let originBranchRef = null;
 
-    originBranchRef = await this.getBranchRef(owner, repoName, branch);
+    originBranchRef = await this.getBranchRef(owner, repoName, featureBranch);
 
     if (!originBranchRef) {
       originBranchRef = await this.getBranchRef(owner, repoName, "main");
@@ -55,7 +51,7 @@ export class GitHub implements CodeHosting {
       await this.octokit.rest.git.createRef({
         owner,
         repo: repoName,
-        ref: `refs/heads/${branch}`,
+        ref: `refs/heads/${featureBranch}`,
         sha: originBranchRef.data.object.sha,
       });
     }
@@ -106,7 +102,7 @@ export class GitHub implements CodeHosting {
     await this.octokit.git.updateRef({
       owner,
       repo: repoName,
-      ref: `heads/${branch}`,
+      ref: `heads/${featureBranch}`,
       sha: commit.data.sha,
       force: true,
     });
@@ -130,9 +126,7 @@ export class GitHub implements CodeHosting {
   }
 
   private getParsedGithubUrl(url: string) {
-    console.log("url", url);
     const parsedUrl = gh(url);
-    console.log(parsedUrl);
     if (!parsedUrl) {
       throw new Error("Invalid URL");
     }
