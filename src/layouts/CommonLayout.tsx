@@ -11,47 +11,26 @@ export const CommonLayout = ({ children }: PropsWithChildren) => {
   );
 
   return (
-    <div
-      style={{
-        position: "relative",
-        height: "100%",
-        display: "flex",
-        flexDirection: "column",
-      }}
-    >
-      <div
-        style={{
-          height: "calc(100% - 50px)",
-          overflow: "auto",
-          borderBottom: "1px solid #ccc",
-        }}
-      >
-        {Content}
-      </div>
-      <div
-        style={{
-          marginInline: "10",
-          flex: 1,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-        }}
-      >
+    <div className="common-layout-wrapper">
+      <div className="content">{Content}</div>
+      <footer className="footer">
         {Bottom}
         <button
+          style={!Bottom ? { flex: 1 } : {}}
+          className="button button--secondary"
           onClick={() => {
             parent.postMessage({ pluginMessage: { type: "close" } }, "*");
           }}
         >
           Close
         </button>
-      </div>
+      </footer>
     </div>
   );
 };
 
 const Bottom = ({ children }: PropsWithChildren) => {
-  return <footer id="footer">{children}</footer>;
+  return <>{children}</>;
 };
 
 const Content = ({ children }: PropsWithChildren) => {

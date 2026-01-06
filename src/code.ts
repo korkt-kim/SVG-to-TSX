@@ -16,7 +16,7 @@ function getSelectedComponents() {
   );
 }
 
-figma.showUI(__html__, { visible: true, width: 240, height: 270 });
+figma.showUI(__html__, { visible: true, width: 240, height: 300 });
 
 Promise.all(
   getSelectedComponents().map((selected) =>
