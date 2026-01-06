@@ -17,10 +17,9 @@ export class GitHub implements CodeHosting {
     svgs,
   }: Parameters<CodeHosting['createPR']>[0]) {
     
-    console.log("wqer")
     const parsedGithubUrl = this.getParsedGithubUrl(url);
-    console.log(parsedGithubUrl)
     this.octokit = new Octokit({
+      // @TODO: setting 기능으로 baseUrl 만들자
       auth: accessToken,
     });
 

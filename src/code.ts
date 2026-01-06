@@ -11,13 +11,9 @@ function ab2str(buf: Uint8Array) {
 }
 
 function getSelectedComponents() {
-  
   return figma.currentPage.selection.filter(
     (item) => item.type === "COMPONENT",
   );
-
-
-
 }
 
 figma.showUI(__html__, { visible: true, width: 240, height: 270 });
@@ -27,17 +23,16 @@ Promise.all(
     selected.exportAsync({ format: "SVG" }),
   ),
 ).then((svgCodes) => {
-  
   figma.ui.postMessage({
     type: POST_MESSAGE_TYPE.LOAD_SVG,
     data: svgCodes.map((svgCode, index) => ({
       svg: ab2str(svgCode),
       name: getSelectedComponents()[index].name,
-    }) ),
-  } satisfies PostMessage['loadSvg']);
+    })),
+  } satisfies PostMessage["loadSvg"]);
 });
 
-figma.ui.onmessage = async (msg:PluginMessage) => {
+figma.ui.onmessage = async (msg: PluginMessage) => {
   switch (msg.type) {
     case "loadAll": {
       const keys = await figma.clientStorage.keysAsync();
@@ -52,7 +47,7 @@ figma.ui.onmessage = async (msg:PluginMessage) => {
       figma.ui.postMessage({
         type: POST_MESSAGE_TYPE.LOAD_ALL,
         data: Object.assign({}, ...dataPairs),
-      } satisfies PostMessage['loadAll']);
+      } satisfies PostMessage["loadAll"]);
 
       return;
     }
@@ -69,8 +64,8 @@ figma.ui.onmessage = async (msg:PluginMessage) => {
       return;
     }
 
-    case 'close':{
-      figma.closePlugin()
+    case "close": {
+      figma.closePlugin();
     }
   }
 };
@@ -90,7 +85,7 @@ figma.on(
           originalName: getSelectedComponents()[index].name,
           name: getSelectedComponents()[index].name,
         })),
-      } satisfies PostMessage['loadSvg']);
+      } satisfies PostMessage["loadSvg"]);
     });
   }),
 );

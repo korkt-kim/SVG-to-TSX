@@ -34,23 +34,22 @@ export const GlobalProvider = ({
 
   useLayoutEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const svgCodesHandler = (event: MessageEvent<{pluginMessage: {type: string, data: any}}>) => {
-
-      if(event.data.pluginMessage.type===POST_MESSAGE_TYPE.LOAD_SVG){
+    const svgCodesHandler = (
+      event: MessageEvent<{ pluginMessage: { type: string; data: any } }>,
+    ) => {
+      if (event.data.pluginMessage.type === POST_MESSAGE_TYPE.LOAD_SVG) {
         const svgCodes = event.data.pluginMessage.data as SVGCode[];
         setSvgCodes(svgCodes);
       }
     };
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    window.addEventListener('message', svgCodesHandler);
-
-    
+    window.addEventListener("message", svgCodesHandler);
 
     return () => {
-      window.removeEventListener('message', svgCodesHandler);
+      window.removeEventListener("message", svgCodesHandler);
     };
-  },[]);
+  }, []);
 
   return (
     <GlobalContext.Provider
