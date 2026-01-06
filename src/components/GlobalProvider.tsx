@@ -3,17 +3,20 @@ import {
   ReactNode,
   useCallback,
   useContext,
+  useEffect,
   useLayoutEffect,
   useState,
 } from "react";
 import { SVGCode, TSXCode } from "../type";
 import { POST_MESSAGE_TYPE } from "../consts";
 
-type STEPS = "inspect" | "export";
+const STEPS = ["inspect", "export", "done"];
+
+type Steps = (typeof STEPS)[number];
 
 export const GlobalContext = createContext<{
   svgCodes: SVGCode[];
-  step: STEPS;
+  step: Steps;
   proceedStep: () => void;
   tsxCodes: TSXCode[];
   setTsxCodes: (codes: TSXCode[]) => void;
@@ -22,19 +25,25 @@ export const GlobalContext = createContext<{
 export const GlobalProvider = ({
   children,
 }: {
-  children: ReactNode | ((step: STEPS) => ReactNode);
+  children: ReactNode | ((step: Steps) => ReactNode);
 }) => {
-  const [step, setStep] = useState<STEPS>("inspect");
+  const [step, setStep] = useState<Steps>("inspect");
   const [tsxCodes, setTsxCodes] = useState<TSXCode[]>([]);
   const [svgCodes, setSvgCodes] = useState<SVGCode[]>([]);
 
   const proceedStep = useCallback(() => {
-    setStep((prevStep) => (prevStep === "inspect" ? "export" : "inspect"));
+    setStep((prevStep) => STEPS[STEPS.indexOf(prevStep) + 1]);
   }, []);
 
+  useEffect(() => {
+    if (svgCodes.length === 0 && step === "export") {
+      setStep("inspect");
+    }
+  }, [step, svgCodes]);
+
   useLayoutEffect(() => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const svgCodesHandler = (
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       event: MessageEvent<{ pluginMessage: { type: string; data: any } }>,
     ) => {
       if (event.data.pluginMessage.type === POST_MESSAGE_TYPE.LOAD_SVG) {
