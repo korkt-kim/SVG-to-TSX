@@ -15,8 +15,7 @@ export class GitHub implements CodeHosting {
     featureBranch,
     commitMessage,
     svgs,
-  }: Parameters<CodeHosting['createPR']>[0]) {
-    
+  }: Parameters<CodeHosting["createPR"]>[0]) {
     const parsedGithubUrl = this.getParsedGithubUrl(url);
     this.octokit = new Octokit({
       // @TODO: setting 기능으로 baseUrl 만들자
@@ -26,9 +25,8 @@ export class GitHub implements CodeHosting {
     const owner = parsedGithubUrl.owner;
     const repoName = parsedGithubUrl.name;
 
-    if (!owner || !repoName ) {
-      console.error("Invalid URL. Failed to create PR");
-      return;
+    if (!owner || !repoName) {
+      throw new Error("Invalid URL");
     }
 
     await this.octokit.repos.get({
@@ -43,8 +41,7 @@ export class GitHub implements CodeHosting {
     if (!originBranchRef) {
       originBranchRef = await this.getBranchRef(owner, repoName, "main");
       if (!originBranchRef) {
-        console.error("Failed to get origin branch ref main");
-        return;
+        throw new Error("Failed to get origin branch ref main");
       }
 
       await this.octokit.rest.git.createRef({
@@ -109,8 +106,7 @@ export class GitHub implements CodeHosting {
 
   private async getBranchRef(owner: string, repo: string, ref: string) {
     if (!this.octokit) {
-      console.error("Octokit not initialized");
-      return null;
+      throw new Error("Octokit not initialized");
     }
 
     try {
