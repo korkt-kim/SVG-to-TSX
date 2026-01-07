@@ -60,6 +60,13 @@ module.exports = (env, argv) => ({
     publicPath: "",
   },
 
+  optimization: {
+    splitChunks: false,
+    runtimeChunk: false,
+    minimize: false,
+    minimizer: argv.mode === "production" ? undefined : [],
+  },
+
   plugins: [
     new webpack.ProvidePlugin({
       process: "process/browser",
