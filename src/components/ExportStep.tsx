@@ -6,8 +6,6 @@ import { useFigmaPersistentValue } from "../libs/FigmaPersistentValue";
 import { CommonLayout } from "../layouts/CommonLayout";
 import { GitLab } from "../utils/codeHosting/gitlab";
 
-
-
 const CODE_HOSTING_SELECT_OPTIONS = [
   { value: "github", label: "GitHub" },
   { value: "gitlab", label: "GitLab" },
@@ -22,7 +20,7 @@ export const ExportStep = () => {
   const codeHostingRef = useRef<CodeHosting | null>(null);
   const { value, savePersistentValue } = useFigmaPersistentValue();
   const [formValues, setFormValues] = useState<{
-    codeHosting: typeof CODE_HOSTING_SELECT_OPTIONS[number]['value'];
+    codeHosting: (typeof CODE_HOSTING_SELECT_OPTIONS)[number]["value"];
     accessToken: string;
     repoUrl: string;
     featureBranch: string;
@@ -35,35 +33,41 @@ export const ExportStep = () => {
     featureBranch: "",
     iconDirectory: "",
     commitMessage: "",
-  })
-  const InputIDs= (Object.keys(formValues) as (keyof typeof formValues)[]).reduce<Record<string, string>>((acc,item)=> ({
-    ...acc,
-    [item]:item
-  }), {}) as Record<keyof typeof formValues, keyof typeof formValues>;
+  });
+  const InputIDs = (
+    Object.keys(formValues) as (keyof typeof formValues)[]
+  ).reduce<Record<string, string>>(
+    (acc, item) => ({
+      ...acc,
+      [item]: item,
+    }),
+    {},
+  ) as Record<keyof typeof formValues, keyof typeof formValues>;
 
-  const setFormValue = (key: keyof typeof formValues, value: typeof formValues[keyof typeof formValues]) => {
+  const setFormValue = (
+    key: keyof typeof formValues,
+    value: (typeof formValues)[keyof typeof formValues],
+  ) => {
     savePersistentValue(key, value);
-    setFormValues(prev=> ({
+    setFormValues((prev) => ({
       ...prev,
       [key]: value,
     }));
-  }
-
-
+  };
 
   useEffect(() => {
-    setFormValues(prev=> {
-      (Object.keys(prev) as (keyof typeof formValues)[]).forEach(key=>{
+    setFormValues((prev) => {
+      (Object.keys(prev) as (keyof typeof formValues)[]).forEach((key) => {
         prev[key] = value[key] || "";
-      })
-      
-      return {...prev};
-    })
+      });
+
+      return { ...prev };
+    });
   }, []);
 
-  useEffect(()=>{
+  useEffect(() => {
     switch (formValues.codeHosting) {
-      case 'github':
+      case "github":
         codeHostingRef.current = new GitHub();
         break;
       case "gitlab":
@@ -73,9 +77,17 @@ export const ExportStep = () => {
       //   codeHostingRef.current = new Bitbucket();
       //   break;
     }
-  },[formValues.codeHosting])
+  }, [formValues.codeHosting]);
 
-  const isFormValid = useMemo(()=> formValues.accessToken && formValues.repoUrl && formValues.featureBranch && formValues.iconDirectory && formValues.commitMessage,[formValues])
+  const isFormValid = useMemo(
+    () =>
+      formValues.accessToken &&
+      formValues.repoUrl &&
+      formValues.featureBranch &&
+      formValues.iconDirectory &&
+      formValues.commitMessage,
+    [formValues],
+  );
 
   return (
     <CommonLayout>
@@ -123,8 +135,10 @@ export const ExportStep = () => {
               setFormValue(InputIDs.codeHosting, e.target.value);
             }}
           >
-            {CODE_HOSTING_SELECT_OPTIONS.map(item=>(
-              <option key={item.value} value={item.value}>{item.label}</option>
+            {CODE_HOSTING_SELECT_OPTIONS.map((item) => (
+              <option key={item.value} value={item.value}>
+                {item.label}
+              </option>
             ))}
           </select>
           <label htmlFor={InputIDs.accessToken}>Access Token</label>

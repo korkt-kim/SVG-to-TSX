@@ -28,18 +28,15 @@ export class GitLab extends CodeHosting {
       throw new Error("Invalid URL");
     }
 
-    console.log(owner, repoName)
+    console.log(owner, repoName);
 
     const projectId = `${owner}/${repoName}`;
 
-
     await this.api.Projects.show(projectId);
-
 
     const branchExists = await this.checkBranchExists(projectId, featureBranch);
 
     if (!branchExists) {
-
       const mainBranchExists = await this.checkBranchExists(projectId, "main");
       if (!mainBranchExists) {
         throw new Error("Failed to get origin branch ref main");
@@ -48,19 +45,23 @@ export class GitLab extends CodeHosting {
       await this.api.Branches.create(projectId, featureBranch, "main");
     }
 
- 
     const actions = svgs.map((svg) => ({
       action: "create" as const,
       filePath: `${destDirectory}/${sanitizeComponentName(svg.name)}.tsx`,
       content: svg.code,
     }));
 
-    await this.api.Commits.create(projectId, featureBranch, commitMessage, actions);
+    await this.api.Commits.create(
+      projectId,
+      featureBranch,
+      commitMessage,
+      actions,
+    );
   }
 
   private async checkBranchExists(
     projectId: string,
-    branchName: string
+    branchName: string,
   ): Promise<boolean> {
     if (!this.api) {
       throw new Error("GitLab API not initialized");
