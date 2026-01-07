@@ -1,40 +1,90 @@
-Below are the steps to get your plugin running. You can also find instructions at:
+# SVG to TSX
 
-https://www.figma.com/plugin-docs/plugin-quickstart-guide/
+Keeping icons in sync between design and code is tedious. **SVG to TSX** automates the entire workflow by converting Figma icons to React components and pushing changes directly to your Git repositories.
 
-This plugin template uses Typescript and NPM, two standard tools in creating JavaScript applications.
+## See SVG to TSX in action
 
-First, download Node.js which comes with NPM. This will allow you to install TypeScript and other
-libraries. You can find the download link here:
+![Demo video or GIF here](./assets/SVGToTSX.gif)
 
-https://nodejs.org/en/download/
+## Benefits
 
-Next, install TypeScript using the command:
+- **Designers** no longer need to manually export SVGs from Figma every time icons are updated or added.
+- **Developers** save time by skipping manual SVG-to-TSX conversion, prop configuration, and copy-pasting code.
+- **Direct Git integration** creates pull requests automatically, making the review process seamless.
+- **Multi-platform support** works with GitHub, GitLab, and Bitbucket (including self-hosted instances).
+- **Type-safe components** generated with TypeScript for better developer experience.
+- **Consistent structure** ensures all icon components follow the same pattern and props interface.
 
-npm install -g typescript
+## Quick Setup (5 Minutes)
 
-Finally, in the directory of your plugin, get the latest type definitions for the plugin API by running:
+### 1. Generate Access Token
 
-npm install --save-dev @figma/plugin-typings
+Choose your Git hosting platform and create an access token:
 
-If you are familiar with JavaScript, TypeScript will look very familiar. In fact, valid JavaScript code
-is already valid Typescript code.
+- **GitHub**: Generate a [fine-grained Personal Access Token](https://github.com/settings/tokens?type=beta) with the "Contents" repository permission set to "Read and write".
+- **GitLab**: Generate a [Personal Access Token](https://gitlab.com/-/profile/personal_access_tokens) with the `api` scope.
+- **Bitbucket**: Generate a [Repository Access Token](https://bitbucket.org/account/settings/app-passwords/) with the `repository:write` permission.
 
-TypeScript adds type annotations to variables. This allows code editors such as Visual Studio Code
-to provide information about the Figma API while you are writing code, as well as help catch bugs
-you previously didn't notice.
 
-For more information, visit https://www.typescriptlang.org/
+### 2. Export Icons
 
-Using TypeScript requires a compiler to convert TypeScript (code.ts) into JavaScript (code.js)
-for the browser to run.
+1. Select icon components in Figma
+2. Review the generated TSX code
+3. Click **Convert and Export**
+4. Configure:
+   - Select Git platform
+   - Access Token
+   - Repository URL
+   - Feature branch name
+   - Icon directory path
+   - Commit message
+5. Click **Export**
 
-We recommend writing TypeScript code using Visual Studio code:
+Icons will be converted to TSX components and pushed to a new branch in your repository, ready for review and merge.
 
-1. Download Visual Studio Code if you haven't already: https://code.visualstudio.com/.
-2. Open this directory in Visual Studio Code.
-3. Compile TypeScript to JavaScript: Run the "Terminal > Run Build Task..." menu item,
-   then select "npm: watch". You will have to do this again every time
-   you reopen Visual Studio Code.
+## Supported Git Platforms
 
-That's it! Visual Studio Code will regenerate the JavaScript file every time you save.
+- GitHub 
+- GitLab
+- Bitbucket
+
+## Features
+
+- **Automatic SVG to TSX conversion** using industry-standard SVGR
+- **Real-time preview** of selected icons
+- **Git integration** with automatic PR creation
+- **Persistent settings** saved per Figma file
+- **Component name preservation** keeps Figma naming in sync with code
+- **TypeScript support** for type-safe React components
+
+## How It Works
+
+1. **Select** icon components in Figma
+2. **Convert** icons are automatically transformed to TSX format
+3. **Configure** repository, branch, and commit details
+4. **Export** plugin creates a new branch and pull request with your icons
+
+## Requirements
+
+- Figma desktop app or browser
+- Git repository (GitHub, GitLab, or Bitbucket)
+- Access token with write permissions
+
+## Support & Feedback
+
+Have questions or suggestions? We'd love to hear from you!
+
+- Open an issue on our [GitHub repository](https://github.com/korkt-kim/svg-to-tsx)
+- Drop a comment on the [Figma Community page](https://figma.com/community)
+
+## Show Your Support
+
+If SVG to TSX saves you time, let us know!
+
+- Give us a star on GitHub
+- Like the plugin on Figma Community
+- Share with your team
+
+---
+
+Made with care for designers and developers who value automation
