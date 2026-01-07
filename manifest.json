@@ -9,6 +9,7 @@
   "editorType": ["figma"],
   "ui": "dist/ui.html",
   "networkAccess": {
-    "allowedDomains": ["https://rsms.me", "https://api.github.com"]
+    "allowedDomains": ["*"],
+    "reasoning": "Allows users to connect to any GitHub or GitLab instance (including self-hosted/enterprise) by entering their custom API domain"
   }
 }
