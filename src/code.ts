@@ -1,5 +1,5 @@
 import { POST_MESSAGE_TYPE } from "./consts";
-import { PluginMessage, PostMessage } from "./type";
+import { PostMessage } from "./type";
 import { debounce } from "./utils/debounce";
 
 // Utility functions start here
@@ -32,7 +32,7 @@ Promise.all(
   } satisfies PostMessage["loadSvg"]);
 });
 
-figma.ui.onmessage = async (msg: PluginMessage) => {
+figma.ui.onmessage = async (msg: PostMessage[keyof PostMessage]) => {
   switch (msg.type) {
     case "loadAll": {
       const keys = await figma.clientStorage.keysAsync();

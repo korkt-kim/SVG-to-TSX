@@ -13,22 +13,18 @@ export type TSXCode = {
   tsx: string;
 };
 
-export type PluginMessage =
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  | { type: "loadAll"; data: Record<string, any> }
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  | { type: "save"; data: Record<string, any> }
-  | { type: "close" };
-
 export interface PostMessage {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   loadAll: {
     type: typeof POST_MESSAGE_TYPE.LOAD_ALL;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     data: Record<string, any>;
   };
   loadSvg: { type: typeof POST_MESSAGE_TYPE.LOAD_SVG; data: SVGCode[] };
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  save: { type: typeof POST_MESSAGE_TYPE.SAVE; data: Record<string, any> };
+  close: { type: typeof POST_MESSAGE_TYPE.CLOSE };
 }
 
 export type FigmaMessageEvent = MessageEvent<{
-  pluginMessage: PluginMessage;
+  pluginMessage: PostMessage[keyof PostMessage];
 }>;
