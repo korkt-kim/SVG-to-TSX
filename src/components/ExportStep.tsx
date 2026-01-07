@@ -1,18 +1,18 @@
-import { useEffect, useRef, useState } from "react";
-import { CodeHosting } from "../utils/codeHosting/types";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { CodeHosting } from "../utils/codeHosting/codeHosting";
 import { useGlobalContext } from "./GlobalProvider";
 import { GitHub } from "../utils/codeHosting/github";
 import { useFigmaPersistentValue } from "../libs/FigmaPersistentValue";
 import { CommonLayout } from "../layouts/CommonLayout";
-import { useCheckFormValidation } from "../hooks/useCheckFormValidation";
+import { GitLab } from "../utils/codeHosting/gitlab";
 
-const InputIDs = {
-  accessToken: "accessToken",
-  repoUrl: "repoUrl",
-  featureBranch: "featureBranch",
-  iconDirectory: "iconDirectory",
-  commitMessage: "commitMessage",
-};
+
+
+const CODE_HOSTING_SELECT_OPTIONS = [
+  { value: "github", label: "GitHub" },
+  { value: "gitlab", label: "GitLab" },
+  { value: "bitbucket", label: "Bitbucket" },
+] as const;
 
 export const ExportStep = () => {
   const [isCreatingPR, setIsCreatingPR] = useState(false);
@@ -21,33 +21,67 @@ export const ExportStep = () => {
 
   const codeHostingRef = useRef<CodeHosting | null>(null);
   const { value, savePersistentValue } = useFigmaPersistentValue();
-  const [isFormValid, formRef, handleInputChange] = useCheckFormValidation();
+  const [formValues, setFormValues] = useState<{
+    codeHosting: typeof CODE_HOSTING_SELECT_OPTIONS[number]['value'];
+    accessToken: string;
+    repoUrl: string;
+    featureBranch: string;
+    iconDirectory: string;
+    commitMessage: string;
+  }>({
+    codeHosting: CODE_HOSTING_SELECT_OPTIONS[0].value,
+    accessToken: "",
+    repoUrl: "",
+    featureBranch: "",
+    iconDirectory: "",
+    commitMessage: "",
+  })
+  const InputIDs= (Object.keys(formValues) as (keyof typeof formValues)[]).reduce<Record<string, string>>((acc,item)=> ({
+    ...acc,
+    [item]:item
+  }), {}) as Record<keyof typeof formValues, keyof typeof formValues>;
 
-  const loadInitialValue = () => {
-    Object.entries(value).forEach(([key, value]) => {
-      const input = document.getElementById(key);
-      if (!input || !("value" in input)) {
-        return;
-      }
+  const setFormValue = (key: keyof typeof formValues, value: typeof formValues[keyof typeof formValues]) => {
+    savePersistentValue(key, value);
+    setFormValues(prev=> ({
+      ...prev,
+      [key]: value,
+    }));
+  }
 
-      input.value = value;
-    });
-  };
+
 
   useEffect(() => {
-    loadInitialValue();
+    setFormValues(prev=> {
+      (Object.keys(prev) as (keyof typeof formValues)[]).forEach(key=>{
+        prev[key] = value[key] || "";
+      })
+      
+      return {...prev};
+    })
   }, []);
 
-  if (!codeHostingRef.current) {
-    codeHostingRef.current = new GitHub();
-  }
+  useEffect(()=>{
+    switch (formValues.codeHosting) {
+      case 'github':
+        codeHostingRef.current = new GitHub();
+        break;
+      case "gitlab":
+        codeHostingRef.current = new GitLab();
+        break;
+      // case "bitbucket":
+      //   codeHostingRef.current = new Bitbucket();
+      //   break;
+    }
+  },[formValues.codeHosting])
+
+  const isFormValid = useMemo(()=> formValues.accessToken && formValues.repoUrl && formValues.featureBranch && formValues.iconDirectory && formValues.commitMessage,[formValues])
 
   return (
     <CommonLayout>
       <CommonLayout.Alert message={alertMessage} />
       <CommonLayout.Content>
         <form
-          ref={formRef}
           id="export"
           className="form form--vertical"
           onSubmit={async (e) => {
@@ -79,15 +113,29 @@ export const ExportStep = () => {
             }
           }}
         >
+          <label htmlFor={InputIDs.codeHosting}>Code Hosting</label>
+          <select
+            required
+            className="input"
+            id={InputIDs.codeHosting}
+            value={formValues.codeHosting}
+            onChange={(e) => {
+              setFormValue(InputIDs.codeHosting, e.target.value);
+            }}
+          >
+            {CODE_HOSTING_SELECT_OPTIONS.map(item=>(
+              <option key={item.value} value={item.value}>{item.label}</option>
+            ))}
+          </select>
           <label htmlFor={InputIDs.accessToken}>Access Token</label>
           <input
             required
             className="input"
             type="password"
+            value={formValues.accessToken}
             id={InputIDs.accessToken}
             onChange={(e) => {
-              savePersistentValue(InputIDs.accessToken, e.target.value);
-              handleInputChange();
+              setFormValue(InputIDs.accessToken, e.target.value);
             }}
           />
           <label htmlFor={InputIDs.repoUrl}>repo url</label>
@@ -95,10 +143,10 @@ export const ExportStep = () => {
             required
             className="input"
             type="text"
+            value={formValues.repoUrl}
             id={InputIDs.repoUrl}
             onChange={(e) => {
-              savePersistentValue(InputIDs.repoUrl, e.target.value);
-              handleInputChange();
+              setFormValue(InputIDs.repoUrl, e.target.value);
             }}
           />
           <label htmlFor={InputIDs.featureBranch}>Feature branch</label>
@@ -106,10 +154,10 @@ export const ExportStep = () => {
             required
             className="input"
             type="text"
+            value={formValues.featureBranch}
             id={InputIDs.featureBranch}
             onChange={(e) => {
-              savePersistentValue(InputIDs.featureBranch, e.target.value);
-              handleInputChange();
+              setFormValue(InputIDs.featureBranch, e.target.value);
             }}
           />
           <label htmlFor={InputIDs.iconDirectory}>Icon directory</label>
@@ -117,18 +165,21 @@ export const ExportStep = () => {
             required
             className="input"
             type="text"
+            value={formValues.iconDirectory}
             id={InputIDs.iconDirectory}
             onChange={(e) => {
-              savePersistentValue(InputIDs.iconDirectory, e.target.value);
-              handleInputChange();
+              setFormValue(InputIDs.iconDirectory, e.target.value);
             }}
           />
           <label htmlFor={InputIDs.commitMessage}>Commit message</label>
           <textarea
             required
             className="textarea"
+            value={formValues.commitMessage}
             id={InputIDs.commitMessage}
-            onChange={() => handleInputChange()}
+            onChange={(e) => {
+              setFormValue(InputIDs.commitMessage, e.target.value);
+            }}
           />
         </form>
       </CommonLayout.Content>
