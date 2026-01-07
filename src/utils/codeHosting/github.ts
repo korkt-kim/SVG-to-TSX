@@ -1,12 +1,13 @@
-import { CodeHosting } from "./types";
+import { CodeHosting } from "./codeHosting";
 import { Octokit } from "@octokit/rest";
-import gh from "parse-github-url";
 import { SetRequired } from "../../type";
 import { sanitizeComponentName } from "../format";
 
-export class GitHub implements CodeHosting {
-  private octokit: Octokit | null = null;
-  constructor() {}
+export class GitHub extends CodeHosting {
+  private api: Octokit | null = null;
+  constructor() {
+    super()
+  }
 
   async createPR({
     accessToken,
@@ -17,7 +18,7 @@ export class GitHub implements CodeHosting {
     svgs,
   }: Parameters<CodeHosting["createPR"]>[0]) {
     const parsedGithubUrl = this.getParsedGithubUrl(url);
-    this.octokit = new Octokit({
+    this.api = new Octokit({
       // @TODO: setting 기능으로 baseUrl 만들자
       auth: accessToken,
     });
@@ -29,7 +30,7 @@ export class GitHub implements CodeHosting {
       throw new Error("Invalid URL");
     }
 
-    await this.octokit.repos.get({
+    await this.api.repos.get({
       owner,
       repo: repoName,
     });
@@ -44,7 +45,7 @@ export class GitHub implements CodeHosting {
         throw new Error("Failed to get origin branch ref main");
       }
 
-      await this.octokit.rest.git.createRef({
+      await this.api.rest.git.createRef({
         owner,
         repo: repoName,
         ref: `refs/heads/${featureBranch}`,
@@ -54,7 +55,7 @@ export class GitHub implements CodeHosting {
 
     const blobs = await Promise.all(
       svgs.map(async (svg) => {
-        const blob = await this.octokit?.git.createBlob({
+        const blob = await this.api?.git.createBlob({
           owner,
           repo: repoName,
           content: btoa(svg.code),
@@ -68,7 +69,7 @@ export class GitHub implements CodeHosting {
       }),
     );
 
-    const tree = await this.octokit.git.createTree({
+    const tree = await this.api.git.createTree({
       owner,
       repo: repoName,
       tree: (
@@ -87,7 +88,7 @@ export class GitHub implements CodeHosting {
       base_tree: originBranchRef.data.object.sha,
     });
 
-    const commit = await this.octokit.git.createCommit({
+    const commit = await this.api.git.createCommit({
       owner,
       repo: repoName,
       message: commitMessage,
@@ -95,7 +96,7 @@ export class GitHub implements CodeHosting {
       parents: [originBranchRef.data.object.sha],
     });
 
-    await this.octokit.git.updateRef({
+    await this.api.git.updateRef({
       owner,
       repo: repoName,
       ref: `heads/${featureBranch}`,
@@ -105,12 +106,12 @@ export class GitHub implements CodeHosting {
   }
 
   private async getBranchRef(owner: string, repo: string, ref: string) {
-    if (!this.octokit) {
+    if (!this.api) {
       throw new Error("Octokit not initialized");
     }
 
     try {
-      return await this.octokit.git.getRef({
+      return await this.api.git.getRef({
         owner,
         repo,
         ref: `heads/${ref}`,
@@ -118,13 +119,5 @@ export class GitHub implements CodeHosting {
     } catch (error) {
       return null;
     }
-  }
-
-  private getParsedGithubUrl(url: string) {
-    const parsedUrl = gh(url);
-    if (!parsedUrl) {
-      throw new Error("Invalid URL");
-    }
-    return parsedUrl;
   }
 }
