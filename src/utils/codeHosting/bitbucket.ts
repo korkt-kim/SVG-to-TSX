@@ -1,9 +1,10 @@
 import { CodeHosting } from "./codeHosting";
 import { sanitizeComponentName } from "../format";
 import { Bitbucket as BitbucketClient } from "bitbucket";
+import { APIClient } from "bitbucket/src/plugins/register-endpoints/types";
 
 export class Bitbucket extends CodeHosting {
-  private api: BitbucketClient | null = null;
+  private api: APIClient | null = null;
   constructor() {
     super();
   }
@@ -30,13 +31,11 @@ export class Bitbucket extends CodeHosting {
       throw new Error("Invalid URL");
     }
 
-    // Verify repository exists
     await this.api.repositories.get({
       workspace,
       repo_slug: repoSlug,
     });
 
-    // Check if feature branch exists, if not create it from main
     const branchExists = await this.checkBranchExists(
       workspace,
       repoSlug,
@@ -53,14 +52,13 @@ export class Bitbucket extends CodeHosting {
         throw new Error("Failed to get origin branch ref main");
       }
 
-      // Get main branch details
+
       const mainBranch = await this.api.refs.getBranch({
         workspace,
         repo_slug: repoSlug,
         name: "main",
       });
 
-      // Create new branch
       await this.api.refs.createBranch({
         workspace,
         repo_slug: repoSlug,
@@ -73,7 +71,6 @@ export class Bitbucket extends CodeHosting {
       });
     }
 
-    // Commit files to the branch
     for (const svg of svgs) {
       const fileName = `${sanitizeComponentName(svg.name)}.tsx`;
       const filePath = `${destDirectory}/${fileName}`;
