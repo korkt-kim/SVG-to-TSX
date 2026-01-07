@@ -6,7 +6,7 @@ import { sanitizeComponentName } from "../format";
 export class GitHub extends CodeHosting {
   private api: Octokit | null = null;
   constructor() {
-    super()
+    super();
   }
 
   async createPR({

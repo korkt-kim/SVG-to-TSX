@@ -11,10 +11,10 @@ export abstract class CodeHosting {
   }): Promise<void>;
 
   getParsedGithubUrl(url: string) {
-      const parsedUrl = gitUrlParse(url);
-      if (!parsedUrl) {
-        throw new Error("Invalid URL");
-      }
-      return parsedUrl;
+    const parsedUrl = gitUrlParse(url);
+    if (!parsedUrl) {
+      throw new Error("Invalid URL");
+    }
+    return parsedUrl;
   }
 }
