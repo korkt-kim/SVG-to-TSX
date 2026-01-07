@@ -10,9 +10,16 @@ export const CommonLayout = ({ children }: PropsWithChildren) => {
     (item) => isValidElement(item) && item.type === CommonLayout.Content,
   );
 
+  const Alert = childrenArray.find(
+    (item) => isValidElement(item) && item.type === CommonLayout.Alert,
+  );
+
   return (
     <div className="common-layout-wrapper">
-      <div className="content">{Content}</div>
+      <div className="content">
+        {Alert}
+        {Content}
+      </div>
       <footer className="footer">
         {Bottom}
         <button
@@ -37,5 +44,18 @@ const Content = ({ children }: PropsWithChildren) => {
   return <main id="main">{children}</main>;
 };
 
+const Alert = ({ message }: { message: string }) => {
+  if (!message) {
+    return null;
+  }
+  return (
+    <div className="alert">
+      <div className="icon icon--warning" />
+      <p className="error-message">{message}</p>
+    </div>
+  );
+};
+
 CommonLayout.Content = Content;
 CommonLayout.Bottom = Bottom;
+CommonLayout.Alert = Alert;

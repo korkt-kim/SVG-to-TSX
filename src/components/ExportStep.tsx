@@ -5,7 +5,6 @@ import { GitHub } from "../utils/codeHosting/github";
 import { useFigmaPersistentValue } from "../libs/FigmaPersistentValue";
 import { CommonLayout } from "../layouts/CommonLayout";
 import { useCheckFormValidation } from "../hooks/useCheckFormValidation";
-import { useErrorContext } from "./ErrorProvider";
 
 const InputIDs = {
   accessToken: "accessToken",
@@ -15,18 +14,11 @@ const InputIDs = {
   commitMessage: "commitMessage",
 };
 
-const isValidInputElement = (
-  input: Element,
-): input is HTMLInputElement | HTMLTextAreaElement => {
-  return (
-    input instanceof HTMLInputElement || input instanceof HTMLTextAreaElement
-  );
-};
-
 export const ExportStep = () => {
   const [isCreatingPR, setIsCreatingPR] = useState(false);
   const globalContext = useGlobalContext();
-  const errorContext = useErrorContext();
+  const [alertMessage, setAlert] = useState("");
+
   const codeHostingRef = useRef<CodeHosting | null>(null);
   const { value, savePersistentValue } = useFigmaPersistentValue();
   const [isFormValid, formRef, handleInputChange] = useCheckFormValidation();
@@ -34,7 +26,7 @@ export const ExportStep = () => {
   const loadInitialValue = () => {
     Object.entries(value).forEach(([key, value]) => {
       const input = document.getElementById(key);
-      if (!input || !isValidInputElement(input)) {
+      if (!input || !("value" in input)) {
         return;
       }
 
@@ -52,6 +44,7 @@ export const ExportStep = () => {
 
   return (
     <CommonLayout>
+      <CommonLayout.Alert message={alertMessage} />
       <CommonLayout.Content>
         <form
           ref={formRef}
@@ -59,7 +52,7 @@ export const ExportStep = () => {
           className="form form--vertical"
           onSubmit={async (e) => {
             e.preventDefault();
-            errorContext.setErrorMessage("");
+            setAlert("");
             setIsCreatingPR(true);
             try {
               await codeHostingRef.current?.createPR({
@@ -79,7 +72,7 @@ export const ExportStep = () => {
               globalContext.proceedStep();
             } catch (e) {
               if (e instanceof Error) {
-                errorContext.setErrorMessage(e.message);
+                setAlert(e.message);
               }
             } finally {
               setIsCreatingPR(false);
