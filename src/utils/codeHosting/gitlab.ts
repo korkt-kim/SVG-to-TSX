@@ -18,6 +18,7 @@ export class GitLab extends CodeHosting {
   }: Parameters<CodeHosting["createPR"]>[0]) {
     const parsedUrl = this.getParsedGithubUrl(url);
     this.api = new Gitlab({
+      
       token: accessToken,
     });
 
@@ -27,8 +28,6 @@ export class GitLab extends CodeHosting {
     if (!owner || !repoName) {
       throw new Error("Invalid URL");
     }
-
-    console.log(owner, repoName);
 
     const projectId = `${owner}/${repoName}`;
 
