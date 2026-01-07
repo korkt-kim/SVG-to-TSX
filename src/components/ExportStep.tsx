@@ -5,6 +5,7 @@ import { GitHub } from "../utils/codeHosting/github";
 import { useFigmaPersistentValue } from "../libs/FigmaPersistentValue";
 import { CommonLayout } from "../layouts/CommonLayout";
 import { GitLab } from "../utils/codeHosting/gitlab";
+import { Bitbucket } from "../utils/codeHosting/bitbucket";
 
 const CODE_HOSTING_SELECT_OPTIONS = [
   { value: "github", label: "GitHub" },
@@ -73,9 +74,9 @@ export const ExportStep = () => {
       case "gitlab":
         codeHostingRef.current = new GitLab();
         break;
-      // case "bitbucket":
-      //   codeHostingRef.current = new Bitbucket();
-      //   break;
+      case "bitbucket":
+        codeHostingRef.current = new Bitbucket();
+        break;
     }
   }, [formValues.codeHosting]);
 
